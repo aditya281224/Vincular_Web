@@ -1,7 +1,7 @@
 import express from "express"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
-
+import path from "path"
 
 import authRoute from "./routes/auth.routes.js"
 import userRoute from "./routes/user.routes.js"
@@ -20,6 +20,7 @@ cloudinary.config({
 
 const app = express()
 const PORT = process.env.PORT || PORT
+const__dirname=path.resolve()
 
 app.use(express.json({limit:"5mb"}));
 app.use(express.urlencoded({extended:true}))
@@ -30,6 +31,14 @@ app.use("/api/auth",authRoute);
 app.use("/api/users",userRoute)
 app.use("/api/posts",postRoute);
 app.use("/api/notifications",notificationRoute)
+
+if (process.env.NODE_ENV === "production") {
+	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+	});
+}
 
 
 app.listen(PORT,() =>{
